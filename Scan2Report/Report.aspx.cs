@@ -16,6 +16,7 @@ namespace Scan2Report
     public partial class Report : Page
     {
         public static string CurUserName = "";
+        public static string VerifyMachine = (System.Configuration.ConfigurationManager.AppSettings["VerifyMachine"] ?? "0").Equals("1") ? "true" : "false";
         protected void Page_Load(object sender, EventArgs e)
         {
             ClientScriptManager cs = Page.ClientScript;

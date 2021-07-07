@@ -129,7 +129,7 @@ namespace Scan2Report
                 userInfo.Add("userId", dt.Rows[0]["FWeChatID"].ToString());
                 userInfo.Add("name", dt.Rows[0]["FUserName"].ToString());
                 userInfo.Add("mobile", dt.Rows[0]["FMobile"].ToString());
-                userInfo.Add("bind", "1");
+                userInfo.Add("bind", "1");  
             }
             else
             {
@@ -248,11 +248,11 @@ namespace Scan2Report
             return BitConverter.ToString(bytes_sha1_out).Replace("-", "").ToLower();
         }
 
-        private static void WriteLog(string content)
+        public static void WriteLog(string content)
         {
             try
             {
-                string tracingFile = HttpContext.Current.Server.MapPath("log");
+                string tracingFile = HttpContext.Current.Server.MapPath("log/");
                 if (!Directory.Exists(tracingFile))
                     Directory.CreateDirectory(tracingFile);
                 string fileName = DateTime.Now.ToString("yyyyMMdd") + ".txt";

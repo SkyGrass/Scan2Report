@@ -40,6 +40,19 @@ namespace Scan2Report
                             Dictionary<string, string> userInfo = AppHelper.GetUserInfoByUserId(userId, ref errMsg);
                             if (userInfo.Count > 0)
                             {
+                                if (userInfo["bind"].Equals("1"))
+                                {
+                                    Context.GetOwinContext().Response.Cookies.Append("UserId", userId, new Microsoft.Owin.CookieOptions()
+                                    {
+                                        HttpOnly = false,
+                                        Expires = DateTime.MaxValue
+                                    });
+                                    Context.GetOwinContext().Response.Cookies.Append("UserName", userInfo["name"], new Microsoft.Owin.CookieOptions()
+                                    {
+                                        HttpOnly = false,
+                                        Expires = DateTime.MaxValue
+                                    });
+                                }
                                 //string config = AppHelper.InitWx(Request.Url.AbsoluteUri, ref errMsg);
                                 string config = AppHelper.InitWx("http://auth.skygrass.xyz:801/register?code=" + code, ref errMsg);
                                 cs.RegisterStartupScript(typeof(string), "", "<script>setUserInfo('" + JsonConvert.SerializeObject(userInfo) + "')</script>");

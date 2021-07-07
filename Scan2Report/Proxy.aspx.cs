@@ -15,6 +15,7 @@ namespace Scan2Report
 {
     public partial class Proxy : System.Web.UI.Page
     {
+        private static bool VerifyMachine = (System.Configuration.ConfigurationManager.AppSettings["VerifyMachine"] ?? "0").Equals("1");
         protected void Page_Load(object sender, EventArgs e)
         {
             if (!Page.IsPostBack)
@@ -23,6 +24,62 @@ namespace Scan2Report
                 if (string.IsNullOrEmpty(action)) return;
                 switch (action)
                 {
+                    case "verify":
+                        if (Request.HttpMethod.ToLower().Equals("get"))
+                        {
+                            if (VerifyMachine)
+                            {
+                                string machine = Request.QueryString["machine"] ?? "";
+                                string msg = ""; bool isSuccess = false;
+                                if (!string.IsNullOrEmpty(machine))
+                                {
+                                    string cmdText = string.Format(@"SELECT 1 FROM dbo.t_Machine WHERE FNumber ='{0}'", machine);
+                                    try
+                                    {
+                                        isSuccess = ZYSoft.DB.BLL.Common.Exist(cmdText);
+                                        if (!isSuccess)
+                                        {
+                                            msg = "未能查询到当前设备的信息,请核实!";
+                                        }
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        msg = ex.Message;
+                                    }
+
+                                    ResponseStr(Serialize(new
+                                    {
+                                        state = isSuccess ? "success" : "error",
+                                        msg = msg
+                                    }));
+                                }
+                                else
+                                {
+                                    ResponseStr(Serialize(new
+                                    {
+                                        state = "error",
+                                        msg = "没有指定要查询的设备号!"
+                                    }));
+                                }
+                            }
+                            else
+                            {
+                                ResponseStr(Serialize(new
+                                {
+                                    state = "success",
+                                    msg = ""
+                                }));
+                            }
+                        }
+                        else
+                        {
+                            ResponseStr(Serialize(new
+                            {
+                                state = "error",
+                                msg = "请求方式不合法!"
+                            }));
+                        }
+                        break;
                     case "query":
                         if (Request.HttpMethod.ToLower().Equals("get"))
                         {
@@ -84,21 +141,33 @@ namespace Scan2Report
                             string type = Request.Form["type"] ?? "";
                             date = date.Replace("+", " ");
                             string userName = Context.GetOwinContext().Request.Cookies["UserName"] ?? "";
+                            string UserId = Context.GetOwinContext().Request.Cookies["UserId"] ?? "";
                             string errMsg = "";
-                            if (BeforeSave(machine, mould, date, status, type, userName, ref errMsg))
+                            if (BeforeSave(machine, mould, date, status, type, UserId, userName, ref errMsg))
                             {
-                                string cmdText = string.Format(@"EXEC dbo.P_SaveRecord @FMachine = '{0}',
+                                bool isSuccess = false;
+                                if (ZYSoft.DB.BLL.Common.Exist(string.Format(@"SELECT 1 FROM dbo.t_User WHERE FUserName ='{0}' AND FWeChatID ='{1}'", userName, UserId)))
+                                {
+                                    string cmdText = string.Format(@"EXEC dbo.P_SaveRecord @FMachine = '{0}',
                                                                     @FMould = '{1}', 
                                                                     @FUserName = '{2}', 
                                                                     @FDate = '{3}', 
                                                                     @FStatus = {4},
                                                                     @FType = {5}", machine, mould, userName, date, status, type);
-                                DataTable dt = ZYSoft.DB.BLL.Common.ExecuteDataTable(cmdText);
-                                bool isSuccess = false;
-                                if (dt != null && dt.Rows.Count > 0)
+
+
+                                    AppHelper.WriteLog(cmdText);
+                                    DataTable dt = ZYSoft.DB.BLL.Common.ExecuteDataTable(cmdText);
+
+                                    if (dt != null && dt.Rows.Count > 0)
+                                    {
+                                        isSuccess = dt.Rows[0]["IsSuccess"].ToString().Equals("1");
+                                        errMsg = dt.Rows[0]["Msg"].ToString();
+                                    }
+                                }
+                                else
                                 {
-                                    isSuccess = dt.Rows[0]["IsSuccess"].ToString().Equals("1");
-                                    errMsg = dt.Rows[0]["Msg"].ToString();
+                                    errMsg = "没有查询到采集人的绑定信息,您的操作可能不合法!";
                                 }
                                 ResponseStr(Serialize(new
                                 {
@@ -199,20 +268,21 @@ namespace Scan2Report
             }
         }
 
-        private bool BeforeSave(string machine, string mould, string date, string status, string type, string userName, ref string errMsg)
+        private bool BeforeSave(string machine, string mould, string date, string status, string type, string userId, string userName, ref string errMsg)
         {
-            errMsg = "必录项缺损!";
+            errMsg = "采集信息必录项不完整,请核实!";
             return !string.IsNullOrEmpty(machine) &&
                  !string.IsNullOrEmpty(mould) &&
                  !string.IsNullOrEmpty(date) &&
                  !string.IsNullOrEmpty(status) &&
                  !string.IsNullOrEmpty(type) &&
+                 !string.IsNullOrEmpty(userId) &&
                  !string.IsNullOrEmpty(userName);
         }
 
         private bool BeforeBinding(string name, string userId, ref string errMsg)
         {
-            errMsg = "必录项缺损!";
+            errMsg = "绑定信息必录项不完整,请核实!";
             return !string.IsNullOrEmpty(name) &&
                  !string.IsNullOrEmpty(userId);
         }

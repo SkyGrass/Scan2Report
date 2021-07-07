@@ -66,6 +66,7 @@
     </div>
 
     <script>
+        var verifyMachine = <%=VerifyMachine%>;
         $('.btn-scan').unbind().bind("click", function (e) {
             const dom = e.currentTarget.id;
             wx.scanQRCode({
@@ -113,6 +114,7 @@
                                 $('#end-group').hide();
                                 $('#txtBegin').val(res.FDate);//本道工序开始时间（当前时间） 
                             }
+                            showSuccess("扫描成功");
                         } else {
                             showError(res.msg);
                         }
@@ -122,6 +124,21 @@
                 })
             } else if (dom.indexOf('machine') > -1) {
                 $('#txtMachine').val(res)
+                if (verifyMachine) {
+                    $.get("./proxy", {
+                        machine: $('#txtMachine').val(),
+                        action: "verify"
+                    }, function (res) {
+                        ZENG.msgbox._hide();
+                        res = JSON.parse(res);
+                        if (res.state != "success") {
+                            showError(res.msg);
+                            $('#txtMachine').val("")
+                        }else{
+                            showSuccess("扫描成功");
+                        }
+                    })
+                } 
             }
         };
 

@@ -1,0 +1,91 @@
+﻿<%@ Master Language="C#" AutoEventWireup="true" CodeBehind="Site.master.cs" Inherits="Scan2Report.SiteMaster" %>
+
+<!DOCTYPE html>
+
+<html lang="zh">
+<head runat="server">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta charset="utf-8" />
+    <title><%: Page.Title %> - 模具采集系统</title>
+
+    <asp:PlaceHolder runat="server">
+        <%: Scripts.Render("~/bundles/modernizr") %>
+    </asp:PlaceHolder>
+    <webopt:BundleReference runat="server" Path="~/Content/css" />
+    <link href="~/favicon.ico" rel="shortcut icon" type="image/x-icon" />
+
+</head>
+<body>
+    <form runat="server">
+        <asp:ScriptManager runat="server">
+            <Scripts>
+                <%--若要了解有关在 ScriptManager 中绑定脚本的详细信息，请参阅 http://go.microsoft.com/fwlink/?LinkID=301884 --%>
+                <%--框架脚本--%>
+                <asp:ScriptReference Name="MsAjaxBundle" />
+                <asp:ScriptReference Name="jquery" />
+                <asp:ScriptReference Name="bootstrap" />
+                <asp:ScriptReference Name="respond" />
+                <asp:ScriptReference Name="plugin" />
+                <asp:ScriptReference Name="wechat" />
+                <asp:ScriptReference Name="WebForms.js" Assembly="System.Web" Path="~/Scripts/WebForms/WebForms.js" />
+                <asp:ScriptReference Name="WebUIValidation.js" Assembly="System.Web" Path="~/Scripts/WebForms/WebUIValidation.js" />
+                <asp:ScriptReference Name="MenuStandards.js" Assembly="System.Web" Path="~/Scripts/WebForms/MenuStandards.js" />
+                <asp:ScriptReference Name="GridView.js" Assembly="System.Web" Path="~/Scripts/WebForms/GridView.js" />
+                <asp:ScriptReference Name="DetailsView.js" Assembly="System.Web" Path="~/Scripts/WebForms/DetailsView.js" />
+                <asp:ScriptReference Name="TreeView.js" Assembly="System.Web" Path="~/Scripts/WebForms/TreeView.js" />
+                <asp:ScriptReference Name="WebParts.js" Assembly="System.Web" Path="~/Scripts/WebForms/WebParts.js" />
+                <asp:ScriptReference Name="Focus.js" Assembly="System.Web" Path="~/Scripts/WebForms/Focus.js" />
+                <asp:ScriptReference Name="WebFormsBundle" />
+                <%--站点脚本--%>
+            </Scripts>
+        </asp:ScriptManager>
+
+        <div class="container body-content">
+            <asp:ContentPlaceHolder ID="MainContent" runat="server">
+            </asp:ContentPlaceHolder>
+            <hr />
+            <p id="info" style="color: red;font-weight:bold"></p>
+            <script>
+                function initWxConfig(config) {
+                    wx.config(Object.assign({}, {
+                        beta: true,
+                        jsApiList: ['hideOptionMenu', 'scanQRCode', 'hideMenuItems', 'closeWindow']
+                    }, JSON.parse(config)));
+
+                    wx.ready(function (res) {
+                        wx.hideOptionMenu()
+                        wx.hideMenuItems({
+                            menuList: ["menuItem:refresh"]
+                        });
+                    });
+                    wx.error(function (err) {
+                        showError(err);
+                    });
+                }
+
+                function showSuccess(msg, callback) {
+                    showError(msg, callback, 'green')
+                }
+                function showError(msg, callback, color) {
+                    $('#info').html('');
+                    $('#info').hide();
+                    if (info) {
+                        $('#info').html(msg);
+                        $('#info').show();
+                        $('#info').css('color', color ? color : 'red')
+                    }
+                    if (callback) {
+                        if (typeof callback == "string" && window.hasOwnProperty(callback)) {
+                            window[callback]();
+                        }
+                        else if (typeof callback == "function") {
+                            callback && callback();
+                        }
+                    }
+                }
+            </script>
+        </div>
+    </form>
+</body>
+</html>

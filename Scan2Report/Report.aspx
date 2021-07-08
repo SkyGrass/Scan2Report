@@ -1,11 +1,9 @@
 ﻿<%@ Page Title="采集" Language="C#" MasterPageFile="~/Site.Master" AutoEventWireup="true" CodeBehind="Report.aspx.cs" Inherits="Scan2Report.Report" %>
 
 <asp:Content runat="server" ID="BodyContent" ContentPlaceHolderID="MainContent">
-    <h2><%: Title %></h2>
+    <%--<h2><%: Title %></h2>--%>
 
-    <div class="form-horizontal">
-        <hr />
-
+    <div class="form-horizontal"> 
         <div class="form-group">
             <label for="txtMachine" class="col-md-2 control-label">机台号</label>
             <div class="col-md-10">
@@ -58,15 +56,41 @@
             </div>
         </div>
 
+        <div class="form-group col-sm-8" style="padding-top: 7px; display: none" id="check-group">
+            <div class="checkbox-custom checkbox-default">
+                <input type="checkbox" name="ispause" id="txtIsPause">
+                <label for="txtIsPause" style="font-weight: bold;">是否暂停</label>
+            </div>
+        </div>
+
+
         <div class="form-group">
             <div class="col-md-offset-2 col-md-10">
                 <input type="button" id="submit" value="提交" class="btn btn-warning btn-block btn-huge" />
             </div>
         </div>
+
+        <fieldset>
+            <legend>扫描记录</legend>
+            <table>
+                <thead>
+                    <tr>
+                        <th>序号</th>
+                        <th>阶段</th>
+                        <th>时间</th>
+                        <th>记录</th>
+                    </tr>
+                </thead>
+                <tbody id="tbody">
+                    <tr>
+                        <td colspan="4">暂无记录</td>
+                    </tr>
+                </tbody>
+            </table>
+        </fieldset>
     </div>
 
     <script>
-        var verifyMachine = <%=VerifyMachine%>;
         $('.btn-scan').unbind().bind("click", function (e) {
             const dom = e.currentTarget.id;
             wx.scanQRCode({
@@ -82,7 +106,7 @@
                 },
                 error: function (res) {
                     if (res.errMsg.indexOf('function_not_exist') > 0) {
-                        showError('版本过低请升级');
+                        showError('版本过低请升级','forbidden');
                     }
                 }
             });
@@ -91,30 +115,29 @@
         function scanCallBack(res, dom) {
             if (dom.indexOf('mould') > -1) {
                 $('#txtMould').val(res)
-                ZENG.msgbox.show('正在查询模具号，请稍后...', 6);
+                showSuccess("扫描成功");
+            } else if (dom.indexOf('machine') > -1) {
+                $('#txtMachine').val(res)
+                ZENG.msgbox.show('正在检索，请稍后...', 6);
                 $.get("./proxy", {
-                    mould: $('#txtMould').val(),
+                    machine: res,
                     action: "query"
                 }, function (res) {
                     ZENG.msgbox._hide();
                     res = JSON.parse(res);
                     if (res.state == "success") {
-                        res = res.data;
-                        if (res.length > 0) {
-                            res = res.pop();
-                            $('#txtCurProcess').val(res.FName);
-                            $('#txtNextStatus').val(res.FNextStatus);
-                            $('#txtNextType').val(res.FNextType);
-                            $('#txtDate').val(res.FDate);
-                            if (res.FNextType == "2") {  //结束采集
-                                $('#end-group').show();
-                                $('#txtBegin').val(res.FBeginDate); //本道工序开始时间
-                                $('#txtEnd').val(res.FDate);//本道工序结束时间（当前时间）
-                            } else {  //开始采集
-                                $('#end-group').hide();
-                                $('#txtBegin').val(res.FDate);//本道工序开始时间（当前时间） 
-                            }
+                        var data = JSON.parse(res.data);
+                        var info = data.a;
+                        var list = data.b;
+                        if (info.length > 0) {
+                            info = info.pop();
+                            setform(info)
                             showSuccess("扫描成功");
+                            $('#tbody').empty();
+                            if (list.length > 0) {
+                                var str = buildTableBody(list);
+                                $('#tbody').append(str);
+                            }
                         } else {
                             showError(res.msg);
                         }
@@ -122,24 +145,57 @@
                         showError(res.msg);
                     }
                 })
-            } else if (dom.indexOf('machine') > -1) {
-                $('#txtMachine').val(res)
-                showSuccess("扫描成功");
-                if (verifyMachine) {
-                    $.get("./proxy", {
-                        machine: $('#txtMachine').val(),
-                        action: "verify"
-                    }, function (res) {
-                        ZENG.msgbox._hide();
-                        res = JSON.parse(res);
-                        if (res.state != "success") {
-                            showError(res.msg);
-                            $('#txtMachine').val("")
-                        }
-                    })
-                } 
             }
         };
+
+        function setform(res) {
+            $('#txtCurProcess').val(res.FName);
+            $('#txtNextStatus').val(res.FNextStatus);
+            $('#txtNextType').val(res.FNextType);
+            $('#txtDate').val(res.FDate);
+            $('#txtMould').val(res.FMould);
+
+            if (res.FNextType == "2") {  //结束采集
+                $('#end-group').show();
+                $('#txtBegin').val(res.FBeginDate); //本道工序开始时间
+                $('#txtEnd').val(res.FDate);//本道工序结束时间（当前时间）
+            } else {  //开始采集
+                $('#end-group').hide();
+                $('#txtBegin').val(res.FDate);//本道工序开始时间（当前时间） 
+            }
+
+            if (res.FMould != "") {
+                $('#scan-mould').hide()
+            } else {
+                $('#scan-mould').show()
+            }
+
+            if (res.FPermitPause == "False") {
+                $('#txtIsPause').hide()
+                $('#check-group').hide()
+            } else {
+                $('#check-group').show()
+                $('#txtIsPause').show()
+                $('#txtIsPause').attr("checked", false)
+            }
+        }
+
+        function buildTableBody(rows) {
+            var str = ""
+            rows.forEach(function (row, index) {
+                str += ("<tr>" +
+                    "    <td rowspan='2'>" + (index + 1) + "</td>" +
+                    "    <td rowspan='2'>" + row.FStep + "</td>" +
+                    "    <td>" + row.FBeginDate + "</td>" +
+                    "    <td>" + row.FMould + "</td>" +
+                    "</tr>" +
+                    "<tr>" +
+                    "    <td>" + row.FEndDate + "</td>" +
+                    "    <td>" + row.FOperator + "</td>" +
+                    "</tr>")
+            })
+            return str;
+        }
 
         $('#submit').click(function () {
             var formStr = $(document.forms).serialize();
@@ -153,6 +209,7 @@
             if (Object.keys(form) <= 0) {
                 return showError('采集数据不完整，请重试...');
             }
+            form["ispause"] = $('#txtIsPause').is(':checked') ? "1" : "0"
             var arr = [];
             for (var v in form) {
                 arr.push(form[v]);
@@ -167,6 +224,7 @@
                 if (res.state == "success") {
                     showSuccess(res.msg, function () {
                         $(document.forms)[0].reset()
+                        $('#tbody').empty();
                         $("#txtUserName").val("<%=CurUserName%>");
                     });
                 } else {
@@ -189,4 +247,18 @@
             $("#txtUserName").val(name);
         });
     </script>
+    <style>
+        table, table tr th, table tr td {
+            border: 1px solid #333;
+            text-align: center;
+        }
+
+        table {
+            width: 100%;
+            min-height: 25px;
+            line-height: 25px;
+            border-collapse: collapse;
+            padding: 2px;
+        }
+    </style>
 </asp:Content>

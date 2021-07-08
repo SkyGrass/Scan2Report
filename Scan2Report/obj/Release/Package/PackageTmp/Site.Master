@@ -41,11 +41,11 @@
             </Scripts>
         </asp:ScriptManager>
 
-        <div class="container body-content">
+        <div class="container body-content"> 
+            <p id="info" style="color: red; font-weight: bold;margin-top:10px;border:1px dashed #333"></p> 
             <asp:ContentPlaceHolder ID="MainContent" runat="server">
             </asp:ContentPlaceHolder>
-            <hr />
-            <p id="info" style="color: red;font-weight:bold"></p>
+
             <script>
                 function initWxConfig(config) {
                     wx.config(Object.assign({}, {
@@ -74,6 +74,7 @@
                         $('#info').html(msg);
                         $('#info').show();
                         $('#info').css('color', color ? color : 'red')
+                        $('#info').css('border-color', color ? color : 'red')
                     }
                     if (callback) {
                         if (typeof callback == "string" && window.hasOwnProperty(callback)) {

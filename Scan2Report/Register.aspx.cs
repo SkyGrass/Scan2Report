@@ -54,7 +54,6 @@ namespace Scan2Report
                                     });
                                 }
                                 string config = AppHelper.InitWx(Request.Url.AbsoluteUri, ref errMsg);
-                                //string config = AppHelper.InitWx("http://auth.skygrass.xyz:801/register?code=" + code, ref errMsg);
                                 cs.RegisterStartupScript(typeof(string), "", "<script>setUserInfo('" + JsonConvert.SerializeObject(userInfo) + "')</script>");
                             }
                             else

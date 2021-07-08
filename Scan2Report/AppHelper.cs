@@ -24,6 +24,7 @@ namespace Scan2Report
             bool result = false;
             try
             {
+                expires_in = expires_in - 5 * 60;//提前五分钟
                 string cmdText = "";
                 if (!ZYSoft.DB.BLL.Common.Exist(string.Format(@"SELECT 1 FROM t_Cache WHERE FCacheType ='{0}'", cache_key)))
                 {
@@ -129,7 +130,7 @@ namespace Scan2Report
                 userInfo.Add("userId", dt.Rows[0]["FWeChatID"].ToString());
                 userInfo.Add("name", dt.Rows[0]["FUserName"].ToString());
                 userInfo.Add("mobile", dt.Rows[0]["FMobile"].ToString());
-                userInfo.Add("bind", "1");  
+                userInfo.Add("bind", "1");
             }
             else
             {

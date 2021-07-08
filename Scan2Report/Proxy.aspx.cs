@@ -24,81 +24,29 @@ namespace Scan2Report
                 if (string.IsNullOrEmpty(action)) return;
                 switch (action)
                 {
-                    case "verify":
-                        if (Request.HttpMethod.ToLower().Equals("get"))
-                        {
-                            if (VerifyMachine)
-                            {
-                                string machine = Request.QueryString["machine"] ?? "";
-                                string msg = ""; bool isSuccess = false;
-                                if (!string.IsNullOrEmpty(machine))
-                                {
-                                    string cmdText = string.Format(@"SELECT 1 FROM dbo.t_Machine WHERE FNumber ='{0}'", machine);
-                                    try
-                                    {
-                                        isSuccess = ZYSoft.DB.BLL.Common.Exist(cmdText);
-                                        if (!isSuccess)
-                                        {
-                                            msg = "未能查询到当前设备的信息,请核实!";
-                                        }
-                                    }
-                                    catch (Exception ex)
-                                    {
-                                        msg = ex.Message;
-                                    }
-
-                                    ResponseStr(Serialize(new
-                                    {
-                                        state = isSuccess ? "success" : "error",
-                                        msg = msg
-                                    }));
-                                }
-                                else
-                                {
-                                    ResponseStr(Serialize(new
-                                    {
-                                        state = "error",
-                                        msg = "没有指定要查询的设备号!"
-                                    }));
-                                }
-                            }
-                            else
-                            {
-                                ResponseStr(Serialize(new
-                                {
-                                    state = "success",
-                                    msg = ""
-                                }));
-                            }
-                        }
-                        else
-                        {
-                            ResponseStr(Serialize(new
-                            {
-                                state = "error",
-                                msg = "请求方式不合法!"
-                            }));
-                        }
-                        break;
                     case "query":
                         if (Request.HttpMethod.ToLower().Equals("get"))
                         {
-                            string mould = Request.QueryString["mould"] ?? "";
+                            string machine = Request.QueryString["machine"] ?? "";
                             string msg = ""; bool isSuccess = false;
-                            if (!string.IsNullOrEmpty(mould))
+                            if (!string.IsNullOrEmpty(machine))
                             {
-                                string cmdText = string.Format(@"EXEC P_GetData '{0}'", mould);
-                                DataTable dt = null;
+                                string cmdText = string.Format(@"EXEC P_GetData '{0}'", machine);
+                                DataSet ds = null; DataTable dtInfo = null; DataTable dtList = null;
                                 try
                                 {
-                                    dt = ZYSoft.DB.BLL.Common.ExecuteDataTable(cmdText);
-                                    if (dt.Columns.Contains("IsSuccess"))
+                                    ds = ZYSoft.DB.BLL.Common.ExecuteDataSet(cmdText);
+                                    dtInfo = ds.Tables[0];
+                                    dtList = null;
+                                    if (dtInfo.Rows[0]["IsSuccess"].Equals("0"))
                                     {
-                                        msg = dt.Rows[0]["Msg"].ToString();
+                                        msg = dtInfo.Rows[0]["Msg"].ToString();
+                                        dtList = new DataTable();
                                     }
                                     else
                                     {
-                                        isSuccess = dt.Rows.Count > 0;
+                                        dtList = ds.Tables[1];
+                                        isSuccess = dtInfo.Rows.Count > 0;
                                     }
                                 }
                                 catch (Exception ex)
@@ -110,7 +58,15 @@ namespace Scan2Report
                                 {
                                     state = isSuccess ? "success" : "error",
                                     msg = msg,
-                                    data = isSuccess ? DataTable2Dic(dt) : new List<Dictionary<string, string>>()
+                                    data = isSuccess ? JsonConvert.SerializeObject(new
+                                    {
+                                        a = DataTable2Dic(dtInfo),
+                                        b = DataTable2Dic(dtList)
+                                    }) : JsonConvert.SerializeObject(new
+                                    {
+                                        a = new string[] { },
+                                        b = new string[] { }
+                                    })
                                 }));
                             }
                             else
@@ -118,7 +74,7 @@ namespace Scan2Report
                                 ResponseStr(Serialize(new
                                 {
                                     state = "error",
-                                    msg = "没有指定要查询的模具号!"
+                                    msg = "没有指定要查询的机台号!"
                                 }));
                             }
                         }
@@ -139,6 +95,7 @@ namespace Scan2Report
                             string date = Request.Form["date"] ?? "";
                             string status = Request.Form["status"] ?? "";
                             string type = Request.Form["type"] ?? "";
+                            string ispause = Request.Form["ispause"] ?? "0";
                             date = date.Replace("+", " ");
                             string userName = Context.GetOwinContext().Request.Cookies["UserName"] ?? "";
                             string UserId = Context.GetOwinContext().Request.Cookies["UserId"] ?? "";
@@ -153,7 +110,8 @@ namespace Scan2Report
                                                                     @FUserName = '{2}', 
                                                                     @FDate = '{3}', 
                                                                     @FStatus = {4},
-                                                                    @FType = {5}", machine, mould, userName, date, status, type);
+                                                                    @FType = {5},
+                                                                    @FIsPause= {6}", machine, mould, userName, date, status, type, ispause.Equals("1"));
 
 
                                     AppHelper.WriteLog(cmdText);

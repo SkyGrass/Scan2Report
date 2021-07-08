@@ -66,4 +66,3 @@ E:\SpecialCode\Scan2Report\Scan2Report\bin\zh-Hans\Microsoft.Owin.Security.resou
 E:\SpecialCode\Scan2Report\Scan2Report\obj\Debug\Scan2Report.dll
 E:\SpecialCode\Scan2Report\Scan2Report\obj\Debug\Scan2Report.pdb
 E:\SpecialCode\Scan2Report\Scan2Report\bin\ZYSoft.DB.Helper.dll
-E:\SpecialCode\Scan2Report\Scan2Report\obj\Debug\Scan2Report.csprojResolveAssemblyReference.cache

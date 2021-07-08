@@ -124,6 +124,7 @@
                 })
             } else if (dom.indexOf('machine') > -1) {
                 $('#txtMachine').val(res)
+                showSuccess("扫描成功");
                 if (verifyMachine) {
                     $.get("./proxy", {
                         machine: $('#txtMachine').val(),
@@ -134,8 +135,6 @@
                         if (res.state != "success") {
                             showError(res.msg);
                             $('#txtMachine').val("")
-                        }else{
-                            showSuccess("扫描成功");
                         }
                     })
                 } 
@@ -168,6 +167,7 @@
                 if (res.state == "success") {
                     showSuccess(res.msg, function () {
                         $(document.forms)[0].reset()
+                        $("#txtUserName").val("<%=CurUserName%>");
                     });
                 } else {
                     showError(res.msg);

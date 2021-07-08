@@ -5,8 +5,8 @@
 <html lang="zh">
 <head runat="server">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title><%: Page.Title %> - 模具采集系统</title>
 
     <asp:PlaceHolder runat="server">
@@ -40,31 +40,50 @@
                 <%--站点脚本--%>
             </Scripts>
         </asp:ScriptManager>
-         
+
         <div class="container body-content">
             <asp:ContentPlaceHolder ID="MainContent" runat="server">
             </asp:ContentPlaceHolder>
-
+            <hr />
+            <p id="info" style="color: red;font-weight:bold"></p>
             <script>
                 function initWxConfig(config) {
-                    config = JSON.parse(config)
                     wx.config(Object.assign({}, {
                         beta: true,
-                        appId: '',
-                        timestamp: '', // 必填，生成签名的时间戳
-                        nonceStr: '', // 必填，生成签名的随机串
-                        signature: '',// 必填，签名，见 附录-JS-SDK使用权限签名算法
-                        jsApiList: ['hideOptionMenu', 'scanQRCode', 'closeWindow'] // 必填，需要使用的JS接口列表，凡是要调用的接口都需要传进来
-                    }, config));
+                        jsApiList: ['hideOptionMenu', 'scanQRCode', 'hideMenuItems', 'closeWindow']
+                    }, JSON.parse(config)));
 
                     wx.ready(function (res) {
                         wx.hideOptionMenu()
+                        wx.hideMenuItems({
+                            menuList: ["menuItem:refresh"]
+                        });
                     });
                     wx.error(function (err) {
-                        console.log(err)
+                        showError(err);
                     });
                 }
 
+                function showSuccess(msg, callback) {
+                    showError(msg, callback, 'green')
+                }
+                function showError(msg, callback, color) {
+                    $('#info').html('');
+                    $('#info').hide();
+                    if (info) {
+                        $('#info').html(msg);
+                        $('#info').show();
+                        $('#info').css('color', color ? color : 'red')
+                    }
+                    if (callback) {
+                        if (typeof callback == "string" && window.hasOwnProperty(callback)) {
+                            window[callback]();
+                        }
+                        else if (typeof callback == "function") {
+                            callback && callback();
+                        }
+                    }
+                }
             </script>
         </div>
     </form>

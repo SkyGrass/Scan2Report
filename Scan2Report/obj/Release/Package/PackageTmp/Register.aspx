@@ -1,4 +1,4 @@
-﻿<%@ Page Title="用户绑定" Language="C#" MasterPageFile="~/Site.Master" AutoEventWireup="true" CodeBehind="Register.aspx.cs" Inherits="Scan2Report.Register" Async="true" %>
+﻿<%@ Page Title="用户绑定" Language="C#" MasterPageFile="~/Site.Master" AutoEventWireup="true" CodeBehind="Register.aspx.cs" Inherits="Scan2Report.Register" %>
 
 <asp:Content runat="server" ID="BodyContent" ContentPlaceHolderID="MainContent">
     <h2><%: Title %></h2>
@@ -31,28 +31,17 @@
 
                     <div class="form-group">
                         <div class="col-md-offset-2 col-md-10">
-                            <input type='button' id="submit" value="绑定" class="btn btn-primary btn-block" />
-                            <input type='button' id="close" value="关闭" class="btn btn-info btn-block" style="display: none" />
+                            <input type='button' id="submit" value="绑定" class="btn btn-primary btn-block btn-huge"/>
+                            <input type='button' id="close" value="关闭" class="btn btn-info btn-block btn-huge" style="display: none" />
                         </div>
                     </div>
                 </div>
             </section>
-
-            <p id="info" style="color: red"></p>
         </div>
     </div>
 
     <script>
-        function showError(errmsg, info) {
-            ZENG.msgbox.show(errmsg, 5);
-            if (info) {
-                $('#info').html(info);
-                $('#info').show();
-                $('#info').css('color', 'red')
-            } else {
-                $('#info').html('');
-                $('#info').hide();
-            }
+        function forbidden() {
             $('#submit').attr('disabled', true)
         }
 
@@ -63,15 +52,12 @@
             $('#txtWcId').val(userinfo.userId);
             if (userinfo.bind == "0") {
                 $('#submit').attr('disabled', false);
-                $('#info').css('color', 'red');
-                $('#info').hide();
                 $('#close').hide();
             } else {
-                $('#info').html("当前微信已绑定!");
-                $('#info').show();
-                $('#info').css('color', 'green')
-                $('#submit').hide();
-                $('#close').show();
+                showSuccess("当前微信已绑定!", function () {
+                    $('#submit').hide();
+                    $('#close').show();
+                })
             }
         }
 
@@ -89,27 +75,26 @@
                 }
             })
             if (Object.keys(form) <= 0) {
-                return ZENG.msgbox.show('绑定数据不完整，请重试...', 5);
+                return showError('绑定数据不完整，请重试...');
             }
             var arr = [];
             for (var v in form) {
                 arr.push(form[v]);
             }
             if (arr.some(function (ele) { return ele == "" })) {
-                return ZENG.msgbox.show('绑定数据不完整，请重试...', 5);
+                return showError('绑定数据不完整，请重试...');
             }
             ZENG.msgbox.show('正在提交，请稍后...', 6);
             $.post('./proxy?action=binding', form, function (res) {
                 res = JSON.parse(res);
                 ZENG.msgbox._hide();
-                ZENG.msgbox.show(res.msg, res.state == "success" ? 4 : 5);
                 if (res.state == "success") {
-                    //$(document.forms)[0].reset(); 
-                    $('#info').html(res.msg);
-                    $('#info').show();
-                    $('#info').css('color', 'green')
-                    $('#submit').hide();
-                    $('#close').show();
+                    showSuccess(res.msg, function () {
+                        $('#submit').hide();
+                        $('#close').show();
+                    });
+                } else {
+                    showError(res.msg)
                 }
             })
         });

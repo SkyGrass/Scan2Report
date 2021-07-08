@@ -1,4 +1,4 @@
-﻿<%@ Page Title="报工" Language="C#" MasterPageFile="~/Site.Master" AutoEventWireup="true" CodeBehind="Report.aspx.cs" Inherits="Scan2Report.Report" %>
+﻿<%@ Page Title="采集" Language="C#" MasterPageFile="~/Site.Master" AutoEventWireup="true" CodeBehind="Report.aspx.cs" Inherits="Scan2Report.Report" %>
 
 <asp:Content runat="server" ID="BodyContent" ContentPlaceHolderID="MainContent">
     <h2><%: Title %></h2>
@@ -52,14 +52,21 @@
         </div>
 
         <div class="form-group">
-            <div class="col-md-offset-2 col-md-10">
-                <input type="button" id="submit" value="提交" class="btn btn-warning btn-block" />
+            <label for="txtUserName" class="col-md-2 control-label">当前登录人</label>
+            <div class="col-md-10">
+                <input type="text" id="txtUserName" class="form-control" readonly />
             </div>
         </div>
 
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="button" id="submit" value="提交" class="btn btn-warning btn-block btn-huge" />
+            </div>
+        </div>
     </div>
 
     <script>
+        var verifyMachine = <%=VerifyMachine%>;
         $('.btn-scan').unbind().bind("click", function (e) {
             const dom = e.currentTarget.id;
             wx.scanQRCode({
@@ -67,15 +74,15 @@
                 needResult: 1,
                 scanType: ["qrCode", "barCode"],
                 success: function (res) {
-                    if (res.err_Info == "success") {
+                    if (res.errMsg.indexOf("ok") > -1) {
                         scanCallBack(res.resultStr, dom);
                     } else {
-                        ZENG.msgbox.show(res.errMsg, 5);
+                        showError(res.errMsg);
                     }
                 },
                 error: function (res) {
                     if (res.errMsg.indexOf('function_not_exist') > 0) {
-                        ZENG.msgbox.show('版本过低请升级', 5);
+                        showError('版本过低请升级');
                     }
                 }
             });
@@ -99,23 +106,38 @@
                             $('#txtNextStatus').val(res.FNextStatus);
                             $('#txtNextType').val(res.FNextType);
                             $('#txtDate').val(res.FDate);
-                            if (res.FNextType == "2") {  //结束报工
+                            if (res.FNextType == "2") {  //结束采集
                                 $('#end-group').show();
                                 $('#txtBegin').val(res.FBeginDate); //本道工序开始时间
                                 $('#txtEnd').val(res.FDate);//本道工序结束时间（当前时间）
-                            } else {  //开始报工
+                            } else {  //开始采集
                                 $('#end-group').hide();
                                 $('#txtBegin').val(res.FDate);//本道工序开始时间（当前时间） 
                             }
+                            showSuccess("扫描成功");
                         } else {
-                            ZENG.msgbox.show(res.msg, 1);
+                            showError(res.msg);
                         }
                     } else {
-                        ZENG.msgbox.show(res.msg, 1);
+                        showError(res.msg);
                     }
                 })
             } else if (dom.indexOf('machine') > -1) {
                 $('#txtMachine').val(res)
+                showSuccess("扫描成功");
+                if (verifyMachine) {
+                    $.get("./proxy", {
+                        machine: $('#txtMachine').val(),
+                        action: "verify"
+                    }, function (res) {
+                        ZENG.msgbox._hide();
+                        res = JSON.parse(res);
+                        if (res.state != "success") {
+                            showError(res.msg);
+                            $('#txtMachine').val("")
+                        }
+                    })
+                } 
             }
         };
 
@@ -129,24 +151,42 @@
                 }
             })
             if (Object.keys(form) <= 0) {
-                return ZENG.msgbox.show('报工数据不完整，请重试...', 5);
+                return showError('采集数据不完整，请重试...');
             }
             var arr = [];
             for (var v in form) {
                 arr.push(form[v]);
             }
             if (arr.some(function (ele) { return ele == "" })) {
-                return ZENG.msgbox.show('报工数据不完整，请重试...', 5);
+                return showError('采集数据不完整，请重试...');
             }
             ZENG.msgbox.show('正在提交，请稍后...', 6);
             $.post('./proxy?action=save', form, function (res) {
                 res = JSON.parse(res);
                 ZENG.msgbox._hide();
-                ZENG.msgbox.show(res.msg, res.state == "success" ? 4 : 5);
                 if (res.state == "success") {
-                    $(document.forms)[0].reset();
+                    showSuccess(res.msg, function () {
+                        $(document.forms)[0].reset()
+                        $("#txtUserName").val("<%=CurUserName%>");
+                    });
+                } else {
+                    showError(res.msg);
                 }
             })
+        });
+
+        function forbidden() {
+            $('#submit').hide();
+            $('.btn-scan').hide();
+        }
+
+        $(function () {
+            var name = "<%=CurUserName%>";
+            if (name == "") {
+                name = "未获取";
+                showError('您可能还未绑定用户，请先绑定...详情:请到绑定用户模块核实!', 'forbidden');
+            }
+            $("#txtUserName").val(name);
         });
     </script>
 </asp:Content>

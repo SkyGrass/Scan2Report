@@ -23,8 +23,9 @@ namespace Scan2Report
             string errMsg = "";
             if (!Page.IsPostBack)
             {
-                CurUserName = Context.Response.Cookies["UserName"].Value ?? "";
-                string config = AppHelper.InitWx("http://auth.skygrass.xyz:801/report", ref errMsg);
+                CurUserName = HttpUtility.UrlDecode(Context.Request.Cookies["UserName"] == null ? "" : Context.Request.Cookies["UserName"].Value);
+                string config = AppHelper.InitWx(Request.Url.AbsoluteUri, ref errMsg);
+                //string config = AppHelper.InitWx("http://auth.skygrass.xyz:801/report", ref errMsg);
                 cs.RegisterStartupScript(typeof(string), "", "<script>initWxConfig('" + config + "')</script>");
             }
         }

@@ -34,6 +34,12 @@ input:focus {
     margin-left: 20px;
 }
 
+.btn-huge {
+    height: 40px;
+    font-size: 22px;
+    line-height: 20px;
+}
+
 /* Responsive: Portrait tablets and up */
 @media screen and (min-width: 768px) {
     .jumbotron {

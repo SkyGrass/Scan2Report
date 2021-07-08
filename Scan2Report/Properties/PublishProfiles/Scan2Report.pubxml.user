@@ -124,7 +124,7 @@
       <publishTime>06/18/2015 20:19:46</publishTime>
     </File>
     <File Include="bin/Scan2Report.dll">
-      <publishTime>07/06/2021 14:55:42</publishTime>
+      <publishTime>07/07/2021 23:36:54</publishTime>
     </File>
     <File Include="bin/System.Web.Optimization.dll">
       <publishTime>02/11/2014 15:26:04</publishTime>
@@ -202,7 +202,7 @@
       <publishTime>07/04/2021 12:17:11</publishTime>
     </File>
     <File Include="Content/Site.css">
-      <publishTime>07/06/2021 14:55:03</publishTime>
+      <publishTime>07/07/2021 09:51:05</publishTime>
     </File>
     <File Include="favicon.ico">
       <publishTime>07/03/2021 10:39:07</publishTime>
@@ -232,10 +232,10 @@
       <publishTime>07/04/2021 00:01:59</publishTime>
     </File>
     <File Include="Register.aspx">
-      <publishTime>07/06/2021 14:46:02</publishTime>
+      <publishTime>07/07/2021 09:52:22</publishTime>
     </File>
     <File Include="Report.aspx">
-      <publishTime>07/06/2021 14:44:03</publishTime>
+      <publishTime>07/07/2021 23:35:33</publishTime>
     </File>
     <File Include="Scripts/bootstrap.js">
       <publishTime>07/03/2021 10:39:18</publishTime>
@@ -334,16 +334,16 @@
       <publishTime>07/04/2021 18:50:45</publishTime>
     </File>
     <File Include="Site.Master">
-      <publishTime>07/06/2021 14:54:48</publishTime>
+      <publishTime>07/07/2021 09:51:39</publishTime>
     </File>
     <File Include="test.aspx">
-      <publishTime>07/04/2021 22:19:13</publishTime>
+      <publishTime>07/06/2021 23:49:18</publishTime>
     </File>
     <File Include="ViewSwitcher.ascx">
       <publishTime>07/03/2021 10:39:22</publishTime>
     </File>
     <File Include="Web.config">
-      <publishTime>07/04/2021 20:22:20</publishTime>
+      <publishTime>07/07/2021 23:12:31</publishTime>
     </File>
   </ItemGroup>
 </Project>

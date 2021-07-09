@@ -2,10 +2,7 @@
 using System.Linq;
 using System.Web;
 using System.Web.UI;
-using Microsoft.AspNet.Identity;
-using Microsoft.AspNet.Identity.Owin;
 using Owin;
-using Scan2Report.Models;
 using System.Collections.Generic;
 using Newtonsoft.Json;
 using System.Security.Cryptography;
@@ -16,7 +13,6 @@ namespace Scan2Report
     public partial class Report : Page
     {
         public static string CurUserName = "";
-        public static string VerifyMachine = (System.Configuration.ConfigurationManager.AppSettings["VerifyMachine"] ?? "0").Equals("1") ? "true" : "false";
         protected void Page_Load(object sender, EventArgs e)
         {
             ClientScriptManager cs = Page.ClientScript;

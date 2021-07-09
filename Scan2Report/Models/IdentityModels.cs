@@ -11,34 +11,34 @@ using Scan2Report.Models;
 namespace Scan2Report.Models
 {
     // 可以通过将更多属性添加到用户类来添加用户的用户数据，请访问 http://go.microsoft.com/fwlink/?LinkID=317594 了解详细信息。
-    public class ApplicationUser : IdentityUser
-    {
-        public ClaimsIdentity GenerateUserIdentity(ApplicationUserManager manager)
-        {
-            // 请注意，authenticationType 必须与 CookieAuthenticationOptions.AuthenticationType 中定义的相应项匹配
-            var userIdentity = manager.CreateIdentity(this, DefaultAuthenticationTypes.ApplicationCookie);
-            // 在此处添加自定义用户声明
-            return userIdentity;
-        }
+    //public class ApplicationUser : IdentityUser
+    //{
+    //    public ClaimsIdentity GenerateUserIdentity(ApplicationUserManager manager)
+    //    {
+    //        // 请注意，authenticationType 必须与 CookieAuthenticationOptions.AuthenticationType 中定义的相应项匹配
+    //        var userIdentity = manager.CreateIdentity(this, DefaultAuthenticationTypes.ApplicationCookie);
+    //        // 在此处添加自定义用户声明
+    //        return userIdentity;
+    //    }
 
-        public Task<ClaimsIdentity> GenerateUserIdentityAsync(ApplicationUserManager manager)
-        {
-            return Task.FromResult(GenerateUserIdentity(manager));
-        }
-    }
+    //    public Task<ClaimsIdentity> GenerateUserIdentityAsync(ApplicationUserManager manager)
+    //    {
+    //        return Task.FromResult(GenerateUserIdentity(manager));
+    //    }
+    //}
 
-    public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
-    {
-        public ApplicationDbContext()
-            : base("DefaultConnection", throwIfV1Schema: false)
-        {
-        }
+    //public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
+    //{
+        //public ApplicationDbContext()
+        //    : base("DefaultConnection", throwIfV1Schema: false)
+        //{
+        //}
 
-        public static ApplicationDbContext Create()
-        {
-            return new ApplicationDbContext();
-        }
-    }
+        //public static ApplicationDbContext Create()
+        //{
+        //    return new ApplicationDbContext();
+        //}
+    //}
 }
 
 #region 帮助器

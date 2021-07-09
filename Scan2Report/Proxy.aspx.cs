@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNet.Identity.Owin;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -15,7 +14,6 @@ namespace Scan2Report
 {
     public partial class Proxy : System.Web.UI.Page
     {
-        private static bool VerifyMachine = (System.Configuration.ConfigurationManager.AppSettings["VerifyMachine"] ?? "0").Equals("1");
         protected void Page_Load(object sender, EventArgs e)
         {
             if (!Page.IsPostBack)

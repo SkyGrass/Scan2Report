@@ -10,6 +10,6 @@
 namespace Scan2Report {
     
     
-    public partial class test {
+    public partial class Test {
     }
 }

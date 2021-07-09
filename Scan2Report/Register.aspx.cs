@@ -1,16 +1,8 @@
 ﻿using System;
 using System.Web;
 using System.Web.UI;
-using Microsoft.AspNet.Identity;
-using Microsoft.AspNet.Identity.Owin;
-using Owin;
-using Scan2Report.Models;
 using System.Collections.Generic;
-using System.Text;
-using System.Net;
 using Newtonsoft.Json;
-using System.Data;
-using Scan2Report;
 
 namespace Scan2Report
 {

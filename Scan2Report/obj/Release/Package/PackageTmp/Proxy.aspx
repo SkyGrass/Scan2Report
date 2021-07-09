@@ -1,1 +1,0 @@
-﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="Proxy.aspx.cs" Inherits="Scan2Report.Proxy" %>

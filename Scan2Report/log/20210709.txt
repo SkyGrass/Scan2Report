@@ -1,0 +1,16 @@
+2021/7/9 0:19:21
+EXEC dbo.P_SaveRecord @FMachine = 'WX-FA1003',
+                                                                    @FMould = '0114600B', 
+                                                                    @FUserName = '包志峰', 
+                                                                    @FDate = '2021/7/9 0:16:32', 
+                                                                    @FStatus = 1,
+                                                                    @FType = 1
+
+2021/7/9 0:22:39
+EXEC dbo.P_SaveRecord @FMachine = 'WX-FA1003',
+                                                                    @FMould = '0114600B', 
+                                                                    @FUserName = '包志峰', 
+                                                                    @FDate = '2021/7/9 0:21:40', 
+                                                                    @FStatus = 1,
+                                                                    @FType = 2
+

@@ -1,7 +1,7 @@
 ﻿<%@ Page Title="用户绑定" Language="C#" MasterPageFile="~/Site.Master" AutoEventWireup="true" CodeBehind="Register.aspx.cs" Inherits="Scan2Report.Register" %>
 
 <asp:Content runat="server" ID="BodyContent" ContentPlaceHolderID="MainContent">
-    <h2><%: Title %></h2>
+<%--    <h2><%: Title %></h2>--%>
 
     <div class="row">
         <div class="col-md-8">

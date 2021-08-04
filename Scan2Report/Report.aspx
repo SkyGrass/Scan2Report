@@ -226,6 +226,12 @@
                         $(document.forms)[0].reset()
                         $('#tbody').empty();
                         $("#txtUserName").val("<%=CurUserName%>");
+                        var list = res.data
+                        if (list.length > 0) {
+                            list = JSON.parse(list)
+                            var str = buildTableBody(list);
+                            $('#tbody').append(str);
+                        }
                     });
                 } else {
                     showError(res.msg);

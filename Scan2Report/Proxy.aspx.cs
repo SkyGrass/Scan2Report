@@ -100,6 +100,7 @@ namespace Scan2Report
                             string errMsg = "";
                             if (BeforeSave(machine, mould, date, status, type, UserId, userName, ref errMsg))
                             {
+                                DataTable dt2 = new DataTable();
                                 bool isSuccess = false;
                                 if (ZYSoft.DB.BLL.Common.Exist(string.Format(@"SELECT 1 FROM dbo.t_User WHERE FUserName ='{0}' AND FWeChatID ='{1}'", userName, UserId)))
                                 {
@@ -113,12 +114,17 @@ namespace Scan2Report
 
 
                                     AppHelper.WriteLog(cmdText);
-                                    DataTable dt = ZYSoft.DB.BLL.Common.ExecuteDataTable(cmdText);
+                                    DataSet ds = ZYSoft.DB.BLL.Common.ExecuteDataSet(cmdText);
+                                    DataTable dt = ds.Tables[0];
 
                                     if (dt != null && dt.Rows.Count > 0)
                                     {
                                         isSuccess = dt.Rows[0]["IsSuccess"].ToString().Equals("1");
                                         errMsg = dt.Rows[0]["Msg"].ToString();
+                                        if (isSuccess)
+                                        {
+                                            dt2 = ds.Tables[1];
+                                        }
                                     }
                                 }
                                 else
@@ -128,7 +134,8 @@ namespace Scan2Report
                                 ResponseStr(Serialize(new
                                 {
                                     state = isSuccess ? "success" : "error",
-                                    msg = errMsg
+                                    msg = errMsg,
+                                    data = JsonConvert.SerializeObject(DataTable2Dic(dt2))
                                 }));
                             }
                             else
